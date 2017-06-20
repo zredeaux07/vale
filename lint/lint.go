@@ -163,6 +163,13 @@ func (l Linter) lintFile(src string) *core.File {
 			} else {
 				fmt.Println(fmt.Sprintf("can't run rst2html: (%s, %s)!", runtime, cmd))
 			}
+		case ".org":
+			cmd := core.Which([]string{"org-ruby"})
+			if cmd != "" {
+				l.lintOrg(file, cmd)
+			} else {
+				fmt.Println("org-ruby not found!")
+			}
 		case ".html":
 			l.lintHTML(file)
 		}

@@ -28,6 +28,12 @@ var rstArgs = []string{
 	"--no-section-numbering",
 }
 
+// org-mode configuration.
+var orgArgs = []string{
+	"--translate",
+	"html",
+}
+
 // AsciiDoc configuration.
 var adocArgs = []string{
 	"-s",
@@ -235,6 +241,15 @@ func (l Linter) lintADoc(f *core.File, asciidoctor string) {
 	var out bytes.Buffer
 	cmd := exec.Command(asciidoctor, adocArgs...)
 	cmd.Stdin = strings.NewReader(f.Content)
+	cmd.Stdout = &out
+	if core.CheckError(cmd.Run()) {
+		l.lintHTMLTokens(f, f.Content, out.Bytes(), 0)
+	}
+}
+
+func (l Linter) lintOrg(f *core.File, org string) {
+	var out bytes.Buffer
+	cmd := exec.Command(org, append([]string{f.Path}, orgArgs...)...)
 	cmd.Stdout = &out
 	if core.CheckError(cmd.Run()) {
 		l.lintHTMLTokens(f, f.Content, out.Bytes(), 0)
