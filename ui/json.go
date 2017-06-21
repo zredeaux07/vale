@@ -17,6 +17,8 @@ func PrintJSONAlerts(linted []*core.File) bool {
 				alertCount++
 			}
 			a.Message = fixOutputSpacing(a.Message)
+			// Omit the context from JSON; I think it's unnecessary bloat.
+			a.Context = ""
 			formatted[f.Path] = append(formatted[f.Path], a)
 		}
 	}
