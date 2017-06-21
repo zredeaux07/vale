@@ -66,3 +66,7 @@ func BenchmarkLintRST(b *testing.B) {
 func BenchmarkLintMD(b *testing.B) {
 	benchmarkLint("../fixtures/benchmarks/bench.md", b)
 }
+
+func BenchmarkLintOrg(b *testing.B) {
+	benchmarkLint("../fixtures/benchmarks/bench.org", b)
+}

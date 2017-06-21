@@ -2,6 +2,7 @@ package lint
 
 import (
 	"bytes"
+	"os"
 	"os/exec"
 	"strings"
 	"unicode/utf8"
@@ -29,6 +30,8 @@ var rstArgs = []string{
 }
 
 // org-mode configuration.
+//
+// TODO: Is there an option to pass standard input to org-ruby?
 var orgArgs = []string{
 	"--translate",
 	"html",
@@ -249,9 +252,18 @@ func (l Linter) lintADoc(f *core.File, asciidoctor string) {
 
 func (l Linter) lintOrg(f *core.File, org string) {
 	var out bytes.Buffer
-	cmd := exec.Command(org, append([]string{f.Path}, orgArgs...)...)
+
+	fpath, err := core.MakeTemp([]byte(f.Content))
+	if err != nil {
+		return
+	}
+
+	cmd := exec.Command(org, append(orgArgs, fpath)...)
 	cmd.Stdout = &out
 	if core.CheckError(cmd.Run()) {
 		l.lintHTMLTokens(f, f.Content, out.Bytes(), 0)
 	}
+
+	// Clean up the temp file
+	core.CheckError(os.Remove(fpath))
 }

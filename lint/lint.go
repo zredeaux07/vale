@@ -141,7 +141,8 @@ func (l Linter) lintFiles(done <-chan core.File, root string, glob core.Glob) (<
 // lintFile creates a new `File` from the path `src` and selects a linter based
 // on its format.
 //
-// TODO: remove dependencies on `asciidoctor` and `rst2html`.
+// TODO: Should we fall back to plain text if an external dependency isn't
+// available?
 func (l Linter) lintFile(src string) *core.File {
 	file := core.NewFile(src, l.Config)
 	if file.Format == "markup" && !l.Config.Simple {
