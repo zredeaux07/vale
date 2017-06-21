@@ -223,7 +223,7 @@ func (l Linter) lintRST(f *core.File, python string, rst2html string) {
 	cmd := exec.Command(python, append([]string{rst2html}, rstArgs...)...)
 	cmd.Stdin = strings.NewReader(reCodeBlock.ReplaceAllString(f.Content, "::"))
 	cmd.Stdout = &out
-	if core.CheckError(cmd.Run()) {
+	if core.CheckError(cmd.Run(), core.CmdError) {
 		html := bytes.Replace(out.Bytes(), []byte("\r"), []byte(""), -1)
 		bodyStart := bytes.Index(html, []byte("<body>\n"))
 		if bodyStart < 0 {
@@ -245,7 +245,7 @@ func (l Linter) lintADoc(f *core.File, asciidoctor string) {
 	cmd := exec.Command(asciidoctor, adocArgs...)
 	cmd.Stdin = strings.NewReader(f.Content)
 	cmd.Stdout = &out
-	if core.CheckError(cmd.Run()) {
+	if core.CheckError(cmd.Run(), core.CmdError) {
 		l.lintHTMLTokens(f, f.Content, out.Bytes(), 0)
 	}
 }
@@ -260,10 +260,10 @@ func (l Linter) lintOrg(f *core.File, org string) {
 
 	cmd := exec.Command(org, append(orgArgs, fpath)...)
 	cmd.Stdout = &out
-	if core.CheckError(cmd.Run()) {
+	if core.CheckError(cmd.Run(), core.CmdError) {
 		l.lintHTMLTokens(f, f.Content, out.Bytes(), 0)
 	}
 
 	// Clean up the temp file
-	core.CheckError(os.Remove(fpath))
+	core.CheckError(os.Remove(fpath), core.IOError)
 }

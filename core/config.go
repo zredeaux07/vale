@@ -30,8 +30,9 @@ func NewGlob(pat string) Glob {
 		negate = true
 	}
 	g, gerr := glob.Compile(pat)
-	if !CheckError(gerr) {
-		panic(gerr)
+	if !CheckError(gerr, GlobError) {
+		g, _ = glob.Compile("*")
+		return Glob{Pattern: g, Negated: false}
 	}
 	return Glob{Pattern: g, Negated: negate}
 }
@@ -66,6 +67,7 @@ type Config struct {
 	Normalize bool   // (optional) replace each path separator with a slash ('/')
 	Simple    bool   // (optional) lint all files line-by-line
 	InExt     string // (optional) extension to associate with stdin
+	Verbose   bool   // (optional) print error messages to stdout
 }
 
 // NewConfig initializes a Config.

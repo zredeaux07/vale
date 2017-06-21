@@ -1,7 +1,6 @@
 package main
 
 import (
-	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -69,6 +68,11 @@ func main() {
 			Usage:       "lint all files line-by-line",
 			Destination: &config.Simple,
 		},
+		cli.BoolFlag{
+			Name:        "verbose",
+			Usage:       "print error messages to stdout",
+			Destination: &core.Verbose,
+		},
 	}
 	app.Commands = []cli.Command{
 		{
@@ -99,8 +103,7 @@ func main() {
 
 	app.Action = func(c *cli.Context) error {
 		var linted []*core.File
-		var err error
-		var hasAlerts bool
+		var hasLintError bool
 
 		if c.NArg() > 0 || core.Stat() {
 			linter := lint.Linter{
@@ -108,43 +111,42 @@ func main() {
 
 			if c.NArg() > 0 {
 				if core.LooksLikeStdin(c.Args()[0]) {
-					linted, err = linter.LintString(c.Args()[0])
+					linted, _ = linter.LintString(c.Args()[0])
 				} else {
-					linted, err = linter.Lint(c.Args(), glob)
+					linted, _ = linter.Lint(c.Args(), glob)
 				}
 			} else {
 				stdin, _ := ioutil.ReadAll(os.Stdin)
-				linted, err = linter.LintString(string(stdin))
+				linted, _ = linter.LintString(string(stdin))
 			}
 
 			// How should we style the output?
 			if config.Output == "line" {
-				hasAlerts = ui.PrintLineAlerts(linted)
+				hasLintError = ui.PrintLineAlerts(linted)
 			} else if config.Output == "JSON" {
-				hasAlerts = ui.PrintJSONAlerts(linted)
+				hasLintError = ui.PrintJSONAlerts(linted)
 			} else if config.Output == "context" {
-				hasAlerts = ui.PrintVerboseAlerts(
+				hasLintError = ui.PrintVerboseAlerts(
 					linted, ui.CONTEXT, config.Wrap)
 			} else {
-				hasAlerts = ui.PrintVerboseAlerts(
+				hasLintError = ui.PrintVerboseAlerts(
 					linted, ui.VERBOSE, config.Wrap)
 			}
 
-			// Should return a nonzero vale on errors?
-			if err == nil && hasAlerts && !config.NoExit {
-				err = errors.New("")
+			if hasLintError {
+				core.SetError(core.LintError)
 			}
 
-			return err
+		} else {
+			cli.ShowAppHelp(c)
 		}
-
-		cli.ShowAppHelp(c)
 		return nil
 	}
 
 	core.ExeDir, _ = filepath.Abs(filepath.Dir(os.Args[0]))
-	if app.Run(os.Args) != nil {
-		os.Exit(1)
+	app.Run(os.Args)
+	if !config.NoExit {
+		os.Exit(core.ValeError)
 	} else {
 		os.Exit(0)
 	}

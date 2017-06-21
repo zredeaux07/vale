@@ -287,9 +287,12 @@ func ContainsAny(text string, slice []string) bool {
 }
 
 // CheckError prints any errors to stdout. A return value of true => no error.
-func CheckError(err error) bool {
+func CheckError(err error, code int) bool {
 	if err != nil {
-		fmt.Println(err.Error())
+		SetError(code)
+		if Verbose {
+			fmt.Println(err.Error())
+		}
 	}
 	return err == nil
 }
@@ -303,7 +306,7 @@ func LooksLikeStdin(s string) bool {
 // A return value of true => no error.
 func CheckAndClose(file *os.File) bool {
 	err := file.Close()
-	return CheckError(err)
+	return CheckError(err, IOError)
 }
 
 // SplitLines splits on CRLF, CR not followed by LF, and LF.

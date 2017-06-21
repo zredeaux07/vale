@@ -29,7 +29,6 @@ package lint
 
 import (
 	"errors"
-	"fmt"
 	"os"
 	"path/filepath"
 	"sort"
@@ -152,7 +151,8 @@ func (l Linter) lintFile(src string) *core.File {
 			if cmd != "" {
 				l.lintADoc(file, cmd)
 			} else {
-				fmt.Println("asciidoctor not found!")
+				l.lintLines(file)
+				core.SetError(core.DependencyError)
 			}
 		case ".md":
 			l.lintMarkdown(file)
@@ -162,14 +162,16 @@ func (l Linter) lintFile(src string) *core.File {
 			if cmd != "" && runtime != "" {
 				l.lintRST(file, runtime, cmd)
 			} else {
-				fmt.Println(fmt.Sprintf("can't run rst2html: (%s, %s)!", runtime, cmd))
+				l.lintLines(file)
+				core.SetError(core.DependencyError)
 			}
 		case ".org":
 			cmd := core.Which([]string{"org-ruby"})
 			if cmd != "" {
 				l.lintOrg(file, cmd)
 			} else {
-				fmt.Println("org-ruby not found!")
+				l.lintLines(file)
+				core.SetError(core.DependencyError)
 			}
 		case ".html":
 			l.lintHTML(file)

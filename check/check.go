@@ -82,7 +82,7 @@ func NewManager(config *core.Config) *Manager {
 			// individually.
 			fName := parts[1] + ".yml"
 			path = filepath.Join(baseDir, parts[0], fName)
-			core.CheckError(mgr.loadCheck(fName, path))
+			core.CheckError(mgr.loadCheck(fName, path), core.RuleError)
 		}
 	}
 
@@ -277,7 +277,7 @@ func (mgr *Manager) addCapitalizationCheck(chkName string, chkDef Capitalization
 		chkDef.Check = f
 	} else {
 		re, err := regexp.Compile(chkDef.Match)
-		if !core.CheckError(err) {
+		if !core.CheckError(err, core.RegexError) {
 			return
 		}
 		chkDef.Check = re.MatchString
@@ -311,7 +311,7 @@ func (mgr *Manager) addConsistencyCheck(chkName string, chkDef Consistency) {
 		chkRE = fmt.Sprintf("(?P<%s>%s)|(?P<%s>%s)", subs[0], v1, subs[1], v2)
 		chkRE = fmt.Sprintf(regex, chkRE)
 		re, err := regexp.Compile(chkRE)
-		if core.CheckError(err) {
+		if core.CheckError(err, core.RegexError) {
 			chkDef.Extends = chkName
 			chkDef.Name = fmt.Sprintf("%s.%s", chkName, v1)
 			fn := func(text string, file *core.File) []core.Alert {
@@ -337,7 +337,7 @@ func (mgr *Manager) addExistenceCheck(chkName string, chkDef Existence) {
 
 	regex = fmt.Sprintf(regex, strings.Join(chkDef.Tokens, "|"))
 	re, err := regexp.Compile(regex)
-	if core.CheckError(err) {
+	if core.CheckError(err, core.RegexError) {
 		fn := func(text string, file *core.File) []core.Alert {
 			return checkExistence(text, chkDef, file, re)
 		}
@@ -352,7 +352,7 @@ func (mgr *Manager) addRepetitionCheck(chkName string, chkDef Repetition) {
 	}
 	regex += `(` + strings.Join(chkDef.Tokens, "|") + `)`
 	re, err := regexp.Compile(regex)
-	if core.CheckError(err) {
+	if core.CheckError(err, core.RegexError) {
 		fn := func(text string, file *core.File) []core.Alert {
 			return checkRepetition(text, chkDef, file, re)
 		}
@@ -362,7 +362,7 @@ func (mgr *Manager) addRepetitionCheck(chkName string, chkDef Repetition) {
 
 func (mgr *Manager) addOccurrenceCheck(chkName string, chkDef Occurrence) {
 	re, err := regexp.Compile(chkDef.Token)
-	if core.CheckError(err) && chkDef.Max >= 1 {
+	if core.CheckError(err, core.RegexError) && chkDef.Max >= 1 {
 		fn := func(text string, file *core.File) []core.Alert {
 			return checkOccurrence(text, chkDef, file, re, chkDef.Max)
 		}
@@ -376,13 +376,13 @@ func (mgr *Manager) addConditionalCheck(chkName string, chkDef Conditional) {
 	var err error
 
 	re, err = regexp.Compile(chkDef.Second)
-	if !core.CheckError(err) {
+	if !core.CheckError(err, core.RegexError) {
 		return
 	}
 	expression = append(expression, re)
 
 	re, err = regexp.Compile(chkDef.First)
-	if !core.CheckError(err) {
+	if !core.CheckError(err, core.RegexError) {
 		return
 	}
 	expression = append(expression, re)
@@ -432,7 +432,7 @@ func (mgr *Manager) addSubstitutionCheck(chkName string, chkDef Substitution) {
 
 	regex = fmt.Sprintf(regex, strings.TrimRight(tokens, "|"))
 	re, err := regexp.Compile(regex)
-	if core.CheckError(err) {
+	if core.CheckError(err, core.RegexError) {
 		fn := func(text string, file *core.File) []core.Alert {
 			return checkSubstitution(text, chkDef, file, re, replacements)
 		}
@@ -530,16 +530,16 @@ func (mgr *Manager) loadExternalStyle(path string) {
 			if err != nil || fi.IsDir() {
 				return nil
 			}
-			core.CheckError(mgr.loadCheck(fi.Name(), fp))
+			core.CheckError(mgr.loadCheck(fi.Name(), fp), core.StyleError)
 			return nil
 		})
-	core.CheckError(err)
+	core.CheckError(err, core.StyleError)
 }
 
 func (mgr *Manager) loadCheck(fName string, fp string) error {
 	if strings.HasSuffix(fName, ".yml") {
 		f, err := ioutil.ReadFile(fp)
-		if !core.CheckError(err) {
+		if !core.CheckError(err, core.RuleError) {
 			return err
 		}
 
@@ -559,6 +559,6 @@ func (mgr *Manager) loadDefaultRules() {
 		if err != nil {
 			continue
 		}
-		core.CheckError(mgr.addCheck(b, "vale."+chk))
+		core.CheckError(mgr.addCheck(b, "vale."+chk), core.BinError)
 	}
 }
