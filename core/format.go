@@ -77,5 +77,4 @@ var FormatByExtension = map[string][]string{
 	`\.(?:sass|less)$`:                            {".c", "code"},
 	`\.(?:scala|sbt)$`:                            {".c", "code"},
 	`\.(?:hs)$`:                                   {".hs", "code"},
-	`\.(?:org)$`:                                  {".org", "markup"},
 }

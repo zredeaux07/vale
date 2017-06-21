@@ -2,7 +2,6 @@ package lint
 
 import (
 	"bytes"
-	"os"
 	"os/exec"
 	"strings"
 	"unicode/utf8"
@@ -28,15 +27,6 @@ var rstArgs = []string{
 	"--no-footnote-backlinks",
 	"--no-section-numbering",
 }
-
-// org-mode configuration.
-//
-// TODO: Is there an option to pass standard input to org-ruby?
-var orgArgs = []string{
-	"--translate",
-	"html",
-}
-var reMathBlock = regexp.MustCompile(`(?:\$|\\\()([^$()\\]+)(?:\$|\\\))`)
 
 // AsciiDoc configuration.
 var adocArgs = []string{
@@ -249,24 +239,4 @@ func (l Linter) lintADoc(f *core.File, asciidoctor string) {
 	if core.CheckError(cmd.Run(), core.CmdError) {
 		l.lintHTMLTokens(f, f.Content, out.Bytes(), 0)
 	}
-}
-
-func (l Linter) lintOrg(f *core.File, org string) {
-	var out bytes.Buffer
-
-	// Convert inline math to inline code.
-	f.Content = reMathBlock.ReplaceAllString(f.Content, `~$1~`)
-	fpath, err := core.MakeTemp([]byte(f.Content))
-	if !core.CheckError(err, core.IOError) {
-		return
-	}
-
-	cmd := exec.Command(org, append(orgArgs, fpath)...)
-	cmd.Stdout = &out
-	if core.CheckError(cmd.Run(), core.CmdError) {
-		l.lintHTMLTokens(f, f.Content, out.Bytes(), 0)
-	}
-
-	// Clean up the temp file
-	core.CheckError(os.Remove(fpath), core.IOError)
 }

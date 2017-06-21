@@ -8,8 +8,8 @@ const (
 	// runtime errors.
 	LintError
 
-	// DependencyError implies that we were unable to locate a dependency
-	// (e.g., org-ruby for org-mode) and had to fall back to plain text.
+	// DependencyError implies that we were unable to locate a dependency and
+	// had to fall back to plain text.
 	DependencyError
 
 	// GlobError implies that we were unable to compile a user-supplied glob

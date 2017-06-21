@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -18,24 +17,6 @@ import (
 
 // ExeDir is our starting location.
 var ExeDir string
-
-// MakeTemp creates a named temporary file.
-func MakeTemp(content []byte) (string, error) {
-	tmpfile, err := ioutil.TempFile("", "example")
-	if err != nil {
-		return "", err
-	}
-
-	if _, err := tmpfile.Write(content); err != nil {
-		return "", err
-	}
-
-	if err := tmpfile.Close(); err != nil {
-		return "", err
-	}
-
-	return tmpfile.Name(), nil
-}
 
 // TextToWords convert raw text into a slice of words.
 func TextToWords(text string) []string {
