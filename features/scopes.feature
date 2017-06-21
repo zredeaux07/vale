@@ -9,6 +9,8 @@ Feature: Scopes
     test.html:6:60:rules.Heading:'TODO' left in text
     test.md:1:21:rules.Heading:'XXX' left in text
     test.md:3:5:rules.Heading:'TODO' left in text
+    test.org:1:21:rules.Heading:'XXX' left in text
+    test.org:3:4:rules.Heading:'XXX' left in text
     test.rst:2:9:rules.Heading:'XXX' left in text
     test.rst:5:19:rules.Heading:'TODO' left in text
     """
@@ -21,6 +23,7 @@ Feature: Scopes
     test.adoc:15:20:rules.Table:'XXX' left in text
     test.html:24:69:rules.Table:'TODO' left in text
     test.md:12:10:rules.Table:'TODO' left in text
+    test.org:17:12:rules.Table:'XXX' left in text
     test.rst:15:16:rules.Table:'TODO' left in text
     test.rst:17:3:rules.Table:'XXX' left in text
     """
@@ -36,6 +39,9 @@ Feature: Scopes
     test.md:7:3:rules.List:'TODO' left in text
     test.md:8:3:rules.List:'TODO' left in text
     test.md:12:4:rules.List:'XXX' left in text
+    test.org:7:3:rules.List:'XXX' left in text
+    test.org:8:3:rules.List:'XXX' left in text
+    test.org:12:4:rules.List:'XXX' left in text
     test.rst:9:3:rules.List:'TODO' left in text
     test.rst:10:3:rules.List:'TODO' left in text
     test.rst:14:4:rules.List:'XXX' left in text

@@ -160,3 +160,13 @@ Feature: Lint
     test.rb:11:3:vale.Annotations:'TODO' left in text
     """
     And the exit status should be 0
+
+  Scenario: Lint an org-mode file
+    When I lint "test.org"
+    Then the output should contain exactly:
+    """
+    test.org:3:1:vale.Annotations:'NOTE' left in text
+    test.org:17:2:vale.Annotations:'NOTE' left in text
+    test.org:17:17:vale.Annotations:'XXX' left in text
+    """
+    And the exit status should be 0
