@@ -139,9 +139,6 @@ func (l Linter) lintFiles(done <-chan core.File, root string, glob core.Glob) (<
 
 // lintFile creates a new `File` from the path `src` and selects a linter based
 // on its format.
-//
-// TODO: Should we fall back to plain text if an external dependency isn't
-// available?
 func (l Linter) lintFile(src string) *core.File {
 	file := core.NewFile(src, l.Config)
 	if file.Format == "markup" && !l.Config.Simple {
@@ -152,7 +149,8 @@ func (l Linter) lintFile(src string) *core.File {
 				l.lintADoc(file, cmd)
 			} else {
 				l.lintLines(file)
-				core.SetError(core.DependencyError)
+				core.CheckError(
+					errors.New("can't find asciidoctor"), core.DependencyError)
 			}
 		case ".md":
 			l.lintMarkdown(file)
@@ -163,7 +161,8 @@ func (l Linter) lintFile(src string) *core.File {
 				l.lintRST(file, runtime, cmd)
 			} else {
 				l.lintLines(file)
-				core.SetError(core.DependencyError)
+				core.CheckError(
+					errors.New("can't find rst2html"), core.DependencyError)
 			}
 		case ".org":
 			cmd := core.Which([]string{"org-ruby"})
@@ -171,7 +170,8 @@ func (l Linter) lintFile(src string) *core.File {
 				l.lintOrg(file, cmd)
 			} else {
 				l.lintLines(file)
-				core.SetError(core.DependencyError)
+				core.CheckError(
+					errors.New("can't find org-ruby"), core.DependencyError)
 			}
 		case ".html":
 			l.lintHTML(file)
