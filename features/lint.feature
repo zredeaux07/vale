@@ -168,5 +168,6 @@ Feature: Lint
     test.org:3:1:vale.Annotations:'NOTE' left in text
     test.org:17:2:vale.Annotations:'NOTE' left in text
     test.org:17:17:vale.Annotations:'XXX' left in text
+    test.org:17:22:vale.Annotations:'XXX' left in text
     """
     And the exit status should be 0

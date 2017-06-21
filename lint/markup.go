@@ -36,6 +36,7 @@ var orgArgs = []string{
 	"--translate",
 	"html",
 }
+var reMathBlock = regexp.MustCompile(`(?:\$|\\\()([^$()\\]+)(?:\$|\\\))`)
 
 // AsciiDoc configuration.
 var adocArgs = []string{
@@ -253,8 +254,10 @@ func (l Linter) lintADoc(f *core.File, asciidoctor string) {
 func (l Linter) lintOrg(f *core.File, org string) {
 	var out bytes.Buffer
 
+	// Convert inline math to inline code.
+	f.Content = reMathBlock.ReplaceAllString(f.Content, `~$1~`)
 	fpath, err := core.MakeTemp([]byte(f.Content))
-	if err != nil {
+	if !core.CheckError(err, core.IOError) {
 		return
 	}
 
